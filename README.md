@@ -1,1 +1,1 @@
-This brush snaps to day boundaries. When the user releases the brush, the brush fires a *brushend* event, allowing a listener to adjust the brush extent. Using the new [brush transitions](/mbostock/6216724) being developed for [D3 3.3](https://github.com/mbostock/d3/pull/1458), the brush smoothly interpolates from the original extent to the rounded extent.
+This brush snaps to day boundaries. As the user brushes, the brush fires *brush* events, allowing a listener to adjust the brush extent. Compare this approach to using [brush transitions on brushend](/mbostock/6232537).
