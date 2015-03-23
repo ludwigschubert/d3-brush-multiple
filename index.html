@@ -41,85 +41,191 @@
 <body>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script>
-
-var margin = {top: 200, right: 40, bottom: 200, left: 40},
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+var margin = {
+		top: 200,
+		right: 40,
+		bottom: 200,
+		left: 40
+	},
+	width = 960 - margin.left - margin.right,
+	height = 500 - margin.top - margin.bottom;
 
 var x = d3.time.scale()
-    .domain([new Date(2013, 2, 1), new Date(2013, 2, 15) - 1])
-    .range([0, width]);
-
-var brush = d3.svg.brush()
-    .x(x)
-    .extent([new Date(2013, 2, 2), new Date(2013, 2, 3)])
-    .on("brush", brushed);
+	.domain([new Date(2013, 2, 1), new Date(2013, 2, 15) - 1])
+	.range([0, width]);
 
 var svg = d3.select("body").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	.attr("width", width + margin.left + margin.right)
+	.attr("height", height + margin.top + margin.bottom)
+	.append("g")
+	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 svg.append("rect")
-    .attr("class", "grid-background")
-    .attr("width", width)
-    .attr("height", height);
+	.attr("class", "grid-background")
+	.attr("width", width)
+	.attr("height", height);
 
 svg.append("g")
-    .attr("class", "x grid")
-    .attr("transform", "translate(0," + height + ")")
-    .call(d3.svg.axis()
-        .scale(x)
-        .orient("bottom")
-        .ticks(d3.time.hours, 12)
-        .tickSize(-height)
-        .tickFormat(""))
-  .selectAll(".tick")
-    .classed("minor", function(d) { return d.getHours(); });
+	.attr("class", "x grid")
+	.attr("transform", "translate(0," + height + ")")
+	.call(d3.svg.axis()
+		.scale(x)
+		.orient("bottom")
+		.ticks(d3.time.hours, 12)
+		.tickSize(-height)
+		.tickFormat(""))
+	.selectAll(".tick")
+	.classed("minor", function(d) {
+		return d.getHours();
+	});
 
 svg.append("g")
-    .attr("class", "x axis")
-    .attr("transform", "translate(0," + height + ")")
-    .call(d3.svg.axis()
-      .scale(x)
-      .orient("bottom")
-      .ticks(d3.time.days)
-      .tickPadding(0))
-  .selectAll("text")
-    .attr("x", 6)
-    .style("text-anchor", null);
+	.attr("class", "x axis")
+	.attr("transform", "translate(0," + height + ")")
+	.call(d3.svg.axis()
+		.scale(x)
+		.orient("bottom")
+		.ticks(d3.time.days)
+		.tickPadding(0))
+	.selectAll("text")
+	.attr("x", 6)
+	.style("text-anchor", null);
 
-var gBrush = svg.append("g")
-    .attr("class", "brush")
-    .call(brush);
+//brushes container
+var gBrushes = svg.append('g')
+	.attr("class", "brushes");
 
-gBrush.selectAll("rect")
-    .attr("height", height);
+//keep track of existing brushes
+var brushes = [];
 
-function brushed() {
-  var extent0 = brush.extent(),
-      extent1;
+//return an array that contains the closest brush edge to the left and right
+function getBrushesAround(brush, brushes) {
+	var edge = [];
 
-  // if dragging, preserve the width of the extent
-  if (d3.event.mode === "move") {
-    var d0 = d3.time.day.round(extent0[0]),
-        d1 = d3.time.day.offset(d0, Math.round((extent0[1] - extent0[0]) / 864e5));
-    extent1 = [d0, d1];
-  }
+	brushes.forEach(function(otherBrush) {
+		var otherBrush_extent = otherBrush.extent();
 
-  // otherwise, if resizing, round both dates
-  else {
-    extent1 = extent0.map(d3.time.day.round);
+		if (otherBrush !== brush) {
 
-    // if empty when rounded, use floor & ceil instead
-    if (extent1[0] >= extent1[1]) {
-      extent1[0] = d3.time.day.floor(extent0[0]);
-      extent1[1] = d3.time.day.ceil(extent0[1]);
-    }
-  }
+			if (brush.extent.start !== undefined && otherBrush_extent[1].getTime() <= brush.extent.start[0].getTime()) {
 
-  d3.select(this).call(brush.extent(extent1));
+				if (edge[0] !== undefined && otherBrush_extent[1].getTime() > edge[0].getTime() || edge[0] === undefined)
+					edge[0] = otherBrush_extent[1];
+
+			} else if (brush.extent.start !== undefined && otherBrush_extent[0].getTime() > brush.extent.start[0].getTime()) {
+
+				if (edge[1] !== undefined && otherBrush_extent[0].getTime() < edge[1].getTime() || edge[1] === undefined)
+					edge[1] = otherBrush_extent[0];
+
+			}
+		}
+	});
+
+	return edge;
 }
+
+//new brush handler
+function newBrush() {
+	var brush = d3.svg.brush()
+		.x(x)
+		.on("brush", brushed) //Make sure don't pass surrounding brushes
+		.on("brushend", brushend); //Keep track of what brushes is surrounding
+
+	brushes.push({id: brushes.length, brush: brush});
+
+	function brushed() {
+
+		var extent0 = brush.extent(),
+				extent1;
+
+			// if dragging, preserve the width of the extent
+				if (d3.event.mode === "move") {
+				var d0 = d3.time.day.round(extent0[0]),
+					d1 = d3.time.day.offset(d0, Math.round((extent0[1] - extent0[0]) / 864e5));
+				extent1 = [d0, d1];
+			}
+
+			// otherwise, if resizing, round both dates
+			else {
+				extent1 = extent0.map(d3.time.day.round);
+
+				// if empty when rounded, use floor & ceil instead
+				if (extent1[0] >= extent1[1]) {
+					extent1[0] = d3.time.day.floor(extent0[0]);
+					extent1[1] = d3.time.day.ceil(extent0[1]);
+				}
+			}
+
+		//Make sure no collision
+
+		//find out what surrounds this brush
+		var edge = getBrushesAround(brush, brushes.map(function(d){return d.brush}));
+
+		//if the current block gets brushed beyond the surrounding block, limit it so it does not go past
+		if (edge[1] !== undefined && extent1[1].getTime() > edge[1].getTime()) {
+			extent1[1] = edge[1];
+			//if we are moving, not only do we stop it from going past, but also keep the brush the same size
+			if (d3.event.mode === "move")
+				extent1[0] = d3.time.hour.offset(extent1[1], -Math.round((brush.extent.start[1] - brush.extent.start[0]) / 3600000));
+		} else if (edge[0] !== undefined && extent1[0].getTime() < edge[0].getTime()) {
+			extent1[0] = edge[0];
+			if (d3.event.mode === "move")
+				extent1[1] = d3.time.hour.offset(extent1[0], Math.round((brush.extent.start[1] - brush.extent.start[0]) / 3600000));
+		}
+
+		d3.select(this).call(brush.extent(extent1));
+	}
+
+	function brushend() {
+		//add a new brush as needed
+		var lastBrushExtent = brushes[brushes.length - 1].brush.extent();
+		if (lastBrushExtent[0].getTime() != lastBrushExtent[1].getTime())
+			newBrush();
+
+		//keep track of current loc for comparison later
+		brush.extent.start = brush.extent();
+
+		update();
+	}
+}
+
+function update() {
+	var gBrush = gBrushes
+		.selectAll('.brush')
+		.data(brushes, function (d){return d.id});
+
+	gBrush.enter()
+		.insert("g", '.brush')
+		.attr('class', 'brush')
+		.each(function(brushWrapper) {
+			//call the brush
+			brushWrapper.brush(d3.select(this));
+		});
+
+	gBrush 
+		.each(function (brushWrapper,i){
+			d3.select(this)
+				.attr('class', 'brush brush-'+i)
+				.selectAll('.background')
+				.style('pointer-events', function() {
+					var brush = brushWrapper.brush;
+
+					return i === brushes.length-1 &&
+						brush !== undefined &&
+						brush.extent()[0].getTime() === brush.extent()[1].getTime() 
+							? 'all' : 'none';
+				});
+
+		})
+
+	gBrush.selectAll('rect')
+		.attr("height", height);
+
+	gBrush.exit()
+		.remove();
+}
+
+newBrush();
+update();
 
 </script>

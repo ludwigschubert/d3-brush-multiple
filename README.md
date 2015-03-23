@@ -1,1 +1,5 @@
-This brush snaps to day boundaries. As the user brushes, the brush fires *brush* events, allowing a listener to adjust the brush extent. Compare this approach to using [brush transitions on brushend](/mbostock/6232537).
+This is an implementation of multiple no collision brushes in D3js.
+
+Learn more [here](http://blog.schedulenaut.com/multiple-no-collision-brushes-in-d3js/).
+
+This is a modified version of [Mike Bostock's Snapping brush](/mbostock/6232537).
