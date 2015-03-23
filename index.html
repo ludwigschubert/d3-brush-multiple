@@ -102,17 +102,22 @@ var brushes = [];
 function getBrushesAround(brush, brushes) {
 	var edge = [];
 
+	if(brush.extent.start === undefined)
+		brush.extent.start = brush.extent();
+
 	brushes.forEach(function(otherBrush) {
 		var otherBrush_extent = otherBrush.extent();
 
 		if (otherBrush !== brush) {
 
-			if (brush.extent.start !== undefined && otherBrush_extent[1].getTime() <= brush.extent.start[0].getTime()) {
+			if (brush.extent.start !== undefined 
+				&& otherBrush_extent[1].getTime() <= brush.extent.start[0].getTime()) {
 
 				if (edge[0] !== undefined && otherBrush_extent[1].getTime() > edge[0].getTime() || edge[0] === undefined)
 					edge[0] = otherBrush_extent[1];
 
-			} else if (brush.extent.start !== undefined && otherBrush_extent[0].getTime() > brush.extent.start[0].getTime()) {
+			} else if (brush.extent.start !== undefined 
+				&& otherBrush_extent[0].getTime() > brush.extent.start[0].getTime()) {
 
 				if (edge[1] !== undefined && otherBrush_extent[0].getTime() < edge[1].getTime() || edge[1] === undefined)
 					edge[1] = otherBrush_extent[0];
@@ -132,6 +137,15 @@ function newBrush() {
 		.on("brushend", brushend); //Keep track of what brushes is surrounding
 
 	brushes.push({id: brushes.length, brush: brush});
+
+	function brushstart() {
+        if (d3.event.sourceEvent)
+            brush.mouseStart = d3.event.sourceEvent.x;
+
+        if(brush.extent.start == undefined){
+        	d3.event.sourceEvent.x;
+        }
+    };
 
 	function brushed() {
 
