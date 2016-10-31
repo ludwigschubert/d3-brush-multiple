@@ -1,5 +1,3 @@
-This is an implementation of multiple no collision brushes in D3js.
+This is an implementation of multiple brushes in D3js version 4.
 
-Learn more [here](http://blog.schedulenaut.com/multiple-no-collision-brushes-in-d3js/).
-
-This is a modified version of [Mike Bostock's Snapping brush](/mbostock/6232537).
+Created 2016-10-30 by Ludwig Schubert for Stanford's Fall 2016 offering of CS 448b—Data Visualization.
