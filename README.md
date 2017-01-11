@@ -39,7 +39,7 @@ The d3-brush documentation explains the internal structure of a brush like this
 
 Allright, that's a lot of svg elements for a simple brushing behavior. But look at them in turn, and every element makes sense:
 
-![Diagram of brush DOM elements](brush.png)
+![Diagram of brush DOM elements](brush@2x.png)
 
 *   `g.brush` — this is simply a group to keep all the elements together
 *   `rect.overlay` — a transparent overlay that captures mouse events for creating the brush selection; this will be important for multiple brushes later on
@@ -61,7 +61,7 @@ I'm sure some of you have already noticed: the reason we're not getting events a
 
 The latter will create a new overlay layer for the second brush, ready to capture mouse events to draw a second selection. Mouse events inside the selection rectangle of the original brush will still be handled by it, as we only disabled the mouse events on its overlay layer:
 
-![Diagram of two overlaid brush DOM elements](brushes.png)
+![Diagram of two overlaid brush DOM elements](brushes@2x.png)
 
 [See it with sourcecode here](http://bl.ocks.org/ludwigschubert/0236fa8594c4b02711b2606a8f95f605). Go ahead and read through the implementation; it's not overly long and it's commented.
 
