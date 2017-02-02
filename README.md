@@ -3,6 +3,8 @@
 This is an implementation of *multiple brushes in D3js version 4*.
 While brushes give a good out-of-the-box behavior for single brushes, it is not immediately clear to me how to implement multiple selections/brushes. This is a "solution" primarily to elicit feedback. [bl.ocks.org demo here](http://bl.ocks.org/ludwigschubert/0236fa8594c4b02711b2606a8f95f605).
 
+This is a modified version of [Jonathan Solichin's multiple no collision brush](https://gist.github.com/jssolichin/54b4995bd68275691a23).
+
 ![multiple brush selections](thumbnail.png)
 
 I wrote up this explanation for students taking a data visualization class I was TAing:
