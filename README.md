@@ -1,9 +1,11 @@
 # `d3-brush` Multiple Brushes
 
+This is an implementation of *multiple brushes in D3js version 4*.
+While brushes give a good out-of-the-box behavior for single brushes, it is not immediately clear to me how to implement multiple selections/brushes. This is a "solution" primarily to elicit feedback.
+
 ![multiple brush selections](thumbnail.png)
 
-This is an implementation of *multiple brushes in D3js version 4*.
-While brushes give a good out-of-the-box behavior for single brushes, it is not immediately clear how to implement multiple selections/brushes. This is far from a good solution, but it gets you started in understanding what's necessary.
+I wrote up this explanation for students taking a data visualization class I was TAing:
 
 ## Explanatory piazza post to CS 448b students
 
